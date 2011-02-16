@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <style>
+            .testClass {
+                color: red;
+                border: 1px solid #aaa;
+            }
+        </style>
+        <script type="text/javascript" src="jss.js"></script>
+        <script type="text/javascript">
+            setTimeout(function () {
+                jss('.testClass', 'set', {
+                    borderColor: 'orange',
+                    borderWidth: '5px',
+                    fontSize: '4em'
+                });
+            }, 1000);
+            setTimeout(function () {
+                jss('.testClass', 'remove');
+            }, 2000);
+        </script>
+    </head>
+    <body>
+        <div class="testClass">Test Div</div>
+    </body>
+</html>
