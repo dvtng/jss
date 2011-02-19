@@ -7,20 +7,20 @@
             }
         </style>
         <script type="text/javascript" src="jss.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.js"></script>
         <script type="text/javascript">
             setTimeout(function () {
-                jss.get('.testClass', 'set', {
+                jss('.testClass', {
                     borderColor: 'orange',
                     borderWidth: '5px',
                     fontSize: '4em'
                 });
             }, 1000);
+
             setTimeout(function () {
-                jss.get('.testClass', 'remove');
-                jss.create('p');
-                jss.get('p', jss.styleSheet, 'set', {
-                    background: '#abc'
-                });
+                console.log(jss('.testClass'));
+                $('style:last').remove();
+                console.log(jss('.testClass'));
             }, 2000);
         </script>
     </head>

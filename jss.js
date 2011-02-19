@@ -1,4 +1,4 @@
-var jss = (function (doc) {
+var jss = (function (doc, undefined) {
     var jss,
         head,
         styleSheets;
@@ -7,12 +7,41 @@ var jss = (function (doc) {
     head = doc.head || doc.getElementsByTagName('head')[0];
     styleSheets = doc.styleSheets;
     
-    jss = function () {};
+    jss = function (name, props) {
+        var modified = 0,
+            rules,
+            i,
+            j,
+            propName;
+
+        if (props) {
+            // Sets properties on the rule
+            if (jss.styleSheet) {
+                modified = jss.get(name, jss.styleSheet, 'set', props).length;
+            }
+            if (!modified) {
+                jss.create(name);
+                jss.get(name, jss.styleSheet, 'set', props);
+            }
+            return;
+        } else {
+            // Returns static, consolidated map of properties
+            rules = jss.get(name);
+            props = {};
+            for (i = 0; i < rules.length; i++) {
+                for (j = 0; j < rules[i].style.length; j++) {
+                    propName = rules[i].style[j];
+                    props[propName] = rules[i].style[propName];
+                }
+            }
+            return props;
+        }
+    };
     
-    jss.get = function (name, targetSheet, action) {
+    jss.get = function (name, targetSheet, action /*, actionArgs */) {
         if (!styleSheets) return [];
         
-        var sheets,
+        var sheets = styleSheets,
             sheet,
             rules,
             result = [],
@@ -25,9 +54,8 @@ var jss = (function (doc) {
         // Normalise args
         if (typeof targetSheet == 'string') {
             action = targetSheet;
-            sheets = styleSheets;
             argsStart--;
-        } else {
+        } else if (targetSheet !== undefined) {
             sheets = [targetSheet];
         }
         actionArgs = Array.prototype.slice.call(arguments, argsStart);
@@ -48,7 +76,8 @@ var jss = (function (doc) {
                             rule: rules[j],
                             rulePos: j
                         });
-                        if (actionRet != null) result.push(actionRet);
+                        result.push(actionRet === undefined ?
+                            rules[j] : actionRet);
                     } else {
                         result.push(rules[j]);
                     }
@@ -73,6 +102,7 @@ var jss = (function (doc) {
         set: function (o) {
             var rule = o.rule,
                 props = o.args[0];
+
             if (!props) return;
             for (var i in props) {
                 if (!props.hasOwnProperty(i)) continue;
