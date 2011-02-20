@@ -1,4 +1,4 @@
-# JSS
+# JSS v0.1
 
 A simple JavaScript library for manipulating CSS stylesheets.
 
