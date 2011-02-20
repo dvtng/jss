@@ -1,31 +1,22 @@
 <html>
     <head>
-        <style>
-            .testClass {
-                color: red;
-                border: 1px solid #aaa;
-            }
-        </style>
         <script type="text/javascript" src="jss.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.js"></script>
         <script type="text/javascript">
             setTimeout(function () {
-                jss('.testClass', {
-                    borderColor: 'orange',
-                    borderWidth: '5px',
-                    fontSize: '4em'
+                jss('.special', {
+                    color: 'red',
+                    fontSize: '2em'
                 });
+                jss('.special', {
+                    padding: '10px'
+                });
+                console.dir(jss('.special'));
             }, 1000);
-
-            setTimeout(function () {
-                console.log(jss('.testClass'));
-                $('style:last').remove();
-                console.log(jss('.testClass'));
-            }, 2000);
         </script>
     </head>
     <body>
-        <div class="testClass">Test Div</div>
+        <div class="special">Test Div</div>
         <p>Test paragraph</p>
     </body>
 </html>
