@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <script type="text/javascript" src="jss.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.js"></script>
+        <script type="text/javascript">
+            window.onload = function () {
+                setTimeout(function () {
+                    jss('.special', {
+                        color: 'red',
+                        fontSize: '2em'
+                    });
+                    jss('.special', {
+                        padding: '10px'
+                    });
+                    console.dir(jss('.special'));
+                }, 1000);
+            };
+        </script>
+    </head>
+    <body>
+        <div class="special">Test Div</div>
+    </body>
+</html>
