@@ -25,6 +25,10 @@ Inline styles also need to be re-applied for any dynamically generated content.
 
 ## Usage
 
+Download and include `jss.js` in your HTML:
+
+    <script type="text/javascript" src="jss.js"></script>
+
 Adding a new rule:
 
     jss('.special', {
