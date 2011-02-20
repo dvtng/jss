@@ -4,6 +4,7 @@ A simple JavaScript library for manipulating CSS stylesheets.
 
 * No dependencies.
 * Can be used with any CSS selector or property that the browser understands.
+* MIT Licensed.
 
 ## Why use dynamically generated CSS?
 

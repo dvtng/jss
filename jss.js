@@ -1,7 +1,16 @@
+/*
+ * JSS 0.1 - JavaScript Stylesheets
+ * https://github.com/Box9/jss
+ *
+ * Copyright (c) 2011, Dai Jun Tang
+ * MIT Licensed (http://www.opensource.org/licenses/mit-license.php)
+ */
+
 var jss = (function (doc, undefined) {
     var jss,
         head,
         styleSheets;
+
 
     // Shortcuts
     head = doc.head || doc.getElementsByTagName('head')[0];
