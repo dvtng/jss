@@ -6,6 +6,34 @@ A simple JavaScript library for manipulating CSS stylesheets.
 * Can be used with any CSS selector or property that the browser understands.
 * MIT Licensed.
 
+## Usage
+
+Download and include `jss.js` in your HTML:
+
+    <script type="text/javascript" src="jss.js"></script>
+
+Add new or extend existing rule:
+
+    jss('.special', {
+        color: 'red',
+        fontSize: '2em',
+        padding: '10px'
+    });
+
+Retrieve existing rule:
+
+    jss('.special');
+
+    // Returns:
+    {
+        'color': 'red',
+        'font-size': '2em',
+        'padding-bottom': '10px',
+        'padding-left': '10px',
+        'padding-right': '10px',
+        'padding-top': '10px'
+    }
+
 ## Why use dynamically generated CSS?
 
 **Calculated/retrieved styles**
@@ -23,36 +51,3 @@ Without these styles the components won't even work, and so they should be inclu
 JS-generated inline styles are great for adding element-specific styles such as `top/left` for a tooltip, but they only clutter the HTML for more generic styles during debugging. Styles added using JSS go into their own dynamically-generated stylesheet.
 
 Inline styles also need to be re-applied for any dynamically generated content.
-
-## Usage
-
-Download and include `jss.js` in your HTML:
-
-    <script type="text/javascript" src="jss.js"></script>
-
-Adding a new rule:
-
-    jss('.special', {
-        color: 'red',
-        fontSize: '2em'
-    });
-
-Extending an existing rule is the same:
-
-    jss('.special', {
-        padding: '10px'
-    });
-
-Retrieving an existing rule:
-
-    jss('.special');
-
-    // Returns:
-    {
-        'color': 'red',
-        'font-size': '2em',
-        'padding-bottom': '10px',
-        'padding-left': '10px',
-        'padding-right': '10px',
-        'padding-top': '10px',
-    }
