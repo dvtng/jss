@@ -12,7 +12,7 @@ Download and include `jss.js` in your HTML:
 
     <script type="text/javascript" src="jss.js"></script>
 
-Add new or extend existing rule:
+Add new rule (or extend existing rule):
 
     jss('.special', {
         color: 'red',
@@ -22,7 +22,7 @@ Add new or extend existing rule:
 
 Retrieve existing rule:
 
-    jss('.special');
+    jss('.special').get();
 
     // Returns:
     {
@@ -33,6 +33,10 @@ Retrieve existing rule:
         'padding-right': '10px',
         'padding-top': '10px'
     }
+
+Remove existing rule:
+
+    jss('.special').remove();
 
 ## Why use dynamically generated CSS?
 
