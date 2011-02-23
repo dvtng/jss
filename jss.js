@@ -16,7 +16,7 @@ var jss = (function (doc, undefined) {
     head = doc.head || doc.getElementsByTagName('head')[0];
     styleSheets = doc.styleSheets;
     
-    jss = function (name, props) {
+    jss = function (selector, props) {
         var modified = 0,
             rules,
             i,
@@ -26,16 +26,16 @@ var jss = (function (doc, undefined) {
         if (props) {
             // Sets properties on the rule
             if (jss.styleSheet) {
-                modified = jss.get(name, jss.styleSheet, 'set', props).length;
+                modified = jss.get(selector, jss.styleSheet, 'set', props).length;
             }
             if (!modified) {
-                jss.create(name);
-                jss.get(name, jss.styleSheet, 'set', props);
+                jss.create(selector);
+                jss.get(selector, jss.styleSheet, 'set', props);
             }
             return;
         } else {
             // Returns static, consolidated map of properties
-            rules = jss.get(name);
+            rules = jss.get(selector);
             props = {};
             for (i = 0; i < rules.length; i++) {
                 for (j = 0; j < rules[i].style.length; j++) {
@@ -47,7 +47,7 @@ var jss = (function (doc, undefined) {
         }
     };
     
-    jss.get = function (name, targetSheet, action /*, actionArgs */) {
+    jss.get = function (selector, targetSheet, action /*, actionArgs */) {
         if (!styleSheets) return [];
         
         var sheets = styleSheets,
@@ -68,7 +68,7 @@ var jss = (function (doc, undefined) {
             sheets = [targetSheet];
         }
         actionArgs = Array.prototype.slice.call(arguments, argsStart);
-        name = name.toLowerCase();
+        selector = selector.toLowerCase();
 
         for (i = 0; i < sheets.length; i++) {
             // Get rules for stylesheet, continue if not available
@@ -77,7 +77,7 @@ var jss = (function (doc, undefined) {
             if (!rules) continue;
 
             for (j = 0; j < rules.length; j++) {
-                if (rules[j].selectorText.toLowerCase() == name) {
+                if (rules[j].selectorText.toLowerCase() == selector) {
                     if (action) {
                         actionRet = jss.actions[action]({
                             args: actionArgs,
@@ -120,7 +120,7 @@ var jss = (function (doc, undefined) {
         }
     };
     
-    jss.create = function (name) {
+    jss.create = function (selector) {
         if (!styleSheets) return;
         
         var styleNode,
@@ -145,9 +145,9 @@ var jss = (function (doc, undefined) {
         
         // Add (empty) rule
         if (jss.styleSheet.insertRule) {
-            jss.styleSheet.insertRule(name + ' { }', 0);
+            jss.styleSheet.insertRule(selector + ' { }', 0);
         } else if (jss.styleSheet.addRule) {
-            jss.styleSheet.addRule(name, null, 0);
+            jss.styleSheet.addRule(selector, null, 0);
         }
     };
 
