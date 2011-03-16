@@ -32,7 +32,7 @@ var jss = (function (doc, undefined) {
                 rule = rules[j];
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits ',' into multiple selectors
-                if (rule.selectorText.toLowerCase() == selector) {
+                if (rule.selectorText.toLowerCase() == selector.toLowerCase()) {
                     // IE<9 support
                     if (!rule.parentStyleSheet) rule.parentStyleSheet = sheet;
                     this.rules.push(rule);
