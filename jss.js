@@ -139,14 +139,12 @@ var jss = (function (doc, undefined) {
         }
     };
     
-    _addSheet = function (title) {
+    _addSheet = function () {
         var styleNode,
             i;
         styleNode = doc.createElement('style');
         styleNode.type = 'text/css';
         styleNode.rel = 'stylesheet';
-        styleNode.media = 'screen';
-        styleNode.title = title;
         head.appendChild(styleNode);
         // Get added stylesheet object
         for (i = 0; i < styleSheets.length; i++) {
