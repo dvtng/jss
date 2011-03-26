@@ -8,18 +8,17 @@
 
 var jss = (function (undefined) {
     var jss,
-        jssInit,
         Jss,
         // Shortcuts
         doc = document,
         head = doc.head || doc.getElementsByTagName('head')[0],
         sheets = doc.styleSheets;
     
-    jss = function () {
-        return jssInit.apply(null, arguments);
+    jss = function (selector, sheet) {
+        var obj = new Jss();
+        obj.init(selector, sheet);
+        return obj;
     };
-    
-    jss.dfault = null;
     
     
     // Core functions for manipulating stylesheets
@@ -141,7 +140,101 @@ var jss = (function (undefined) {
     
     
     // Object structure for some code candy
-    
+    Jss = function () {};
+
+    Jss.prototype = {
+        init: function (selector, sheet) {
+            var i;
+
+            if (sheet == null) {
+                if (!this.sheets) this.sheets = jss._getSheets();
+            } else if (sheet === jss) {
+                if (jss.dfault === undefined)
+                    jss.dfault = jss._addSheet();
+                this.sheets = [jss.dfault];
+            } else if (typeof sheet == 'number') {
+                this.sheets = jss._getSheets(sheet);
+            } else if (typeof sheet == 'object') {
+                // Recursive call to init
+                return this.init(selector, jss).add(sheet);
+            }
+
+            this.selector = selector;
+            this.rules = [];
+
+            for (i = 0; i < this.sheets.length; i++) {
+                this.rules =
+                    this.rules.concat(jss._getRules(this.sheets[i], selector));
+            }
+
+            return this;
+        },
+        add: function (prop, value) {
+            var i;
+
+            if (this.rules.length) {
+                this.set(prop, value);
+            } else if (this.selector) {
+                for (i = 0; i < this.sheets.length; i++) {
+                    this.rules.push(
+                        jss._addRule(this.sheets[i], this.selector));
+                }
+                this.set(prop, value);
+            }
+
+            return this;
+        },
+        set: function (prop, value) {
+            var i;
+
+            if (value === undefined) {
+                if (prop && typeof prop == 'object') {
+                    for (i in prop) {
+                        if (!prop.hasOwnProperty(i)) continue;
+                        this.set(i, prop[i]);
+                    }
+                }
+            } else {
+                for (i = 0; i < this.rules.length; i++) {
+                    this.rules[i].style[prop] = value;
+                }
+            }
+
+            return this;
+        },
+        get: function (prop) {
+            var result,
+                propName,
+                i,
+                j;
+
+            if (prop !== undefined) {
+                for (i = this.rules.length - 1; i >=0; i--) {
+                    if (this.rules[i].style[prop] != null) {
+                        result = this.rules[i].style[prop];
+                        break;
+                    }
+                }
+            } else {
+                result = {};
+                for (i = 0; i < this.rules.length; i++) {
+                    for (j = 0; j < this.rules[i].style.length; j++) {
+                        propName = this.rules[i].style[j];
+                        result[propName] = this.rules[i].style[propName];
+                    }
+                }
+            }
+
+            return result;
+        },
+        remove: function () {
+            while (this.rules.length) {
+                // Need to re-init because rule references shift
+                this.init(this.selector);
+                jss._removeRule(this.rules[0]);
+            }
+        }
+    };
     
     return jss;
 })();
