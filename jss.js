@@ -1,5 +1,5 @@
 /*
- * JSS 1.0 - JavaScript Stylesheets
+ * JSS v0.2 - JavaScript Stylesheets
  * https://github.com/Box9/jss
  *
  * Copyright (c) 2011, David Tang
@@ -173,8 +173,10 @@ var jss = (function (undefined) {
             var i;
 
             if (this.rules.length) {
+                // Rule exists, add to existing rule
                 this.set(prop, value);
             } else if (this.selector) {
+                // Rule doesn't exist, add new rule to every sheet
                 for (i = 0; i < this.sheets.length; i++) {
                     this.rules.push(
                         jss._addRule(this.sheets[i], this.selector));
