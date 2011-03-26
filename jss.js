@@ -160,6 +160,7 @@ var jss = (function (undefined) {
             }
 
             this.selector = selector;
+            // TODO: because rules change, shouldn't try to cache it
             this.rules = [];
 
             for (i = 0; i < this.sheets.length; i++) {
@@ -172,17 +173,15 @@ var jss = (function (undefined) {
         add: function (prop, value) {
             var i;
 
-            if (this.rules.length) {
-                // Rule exists, add to existing rule
-                this.set(prop, value);
-            } else if (this.selector) {
-                // Rule doesn't exist, add new rule to every sheet
-                for (i = 0; i < this.sheets.length; i++) {
+            // Add new rule to every sheet that doesn't already have it
+            for (i = 0; i < this.sheets.length; i++) {
+                if (jss._getRules(this.sheets[i], this.selector).length == 0) {
                     this.rules.push(
                         jss._addRule(this.sheets[i], this.selector));
                 }
-                this.set(prop, value);
             }
+
+            this.set(prop, value);
 
             return this;
         },
