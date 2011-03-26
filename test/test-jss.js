@@ -1,41 +1,40 @@
 module('jss');
 
 test('Adding and removing sheets', function () {
-    strictEqual(jss._getSheet(jss), null, 'Default jss sheet is null at first');
-    
-    var newSheet = jss._addSheet(jss);
-    ok(typeof newSheet == 'object' && newSheet !== null, 'Add new sheet');
-    
-    var defSheet = jss._getSheet(jss);
-    ok(typeof defSheet == 'object' && defSheet !== null, 'Default jss sheet added');
-    
-    jss._removeSheet(jss);
-    strictEqual(jss._getSheet(jss), null, 'Default jss sheet removed');
+    var nSheets = jss._getSheets().length;
+
+    // Add new sheet
+    var newSheet = jss._addSheet();
+    equal(jss._getSheets().length, nSheets + 1, 'New sheet added');
+
+    // Remove new sheet
+    jss._removeSheet(newSheet);
+    equal(jss._getSheets().length, nSheets, 'New sheet removed');
 });
 
-test('Add CSS to the default jss sheet', function () {
-    // Shorthand for adding a rule to the default jss sheet
-    jss('.special', {
-        'color': 'red'
-    });
-    equal($('.special').css('color'), 'red', 'Add color red');
-    
-    // Equivalent, expanded syntax
-    jss('.special', jss).add('background-color', '#aaa');
-    equal($('.special').css('background-color'), '#aaa', 'Add background-color');
-    
-    // .set() only works if the rule exists
-    jss('#no', jss).set('color', 'yellow');
-    equal($('#no').css('color'), 'red', "Element's color hasn't changed");
-    
-    jss('#yes', jss).add();
-    jss('#yes', jss).set('color', 'yellow');
-    equal($('#yes').css('color'), 'yellow', "Element's color has changed");
-    
-    // Cleanup
-    jss._removeSheet(jss);
-});
+test('Adding and removing rules', function () {
+    // Setup
+    var sheet = jss._addSheet();
+    var i;
 
-test('Switching stylesheets', function () {
-    // To be determined...
+    equal(jss._getRules(sheet).length, 0, 'New sheet has no rules');
+
+    // Add a rule
+    var rule = jss._addRule(sheet, '.someRule');
+    ok(!!rule.style, 'Rule has a style property');
+    equal(jss._getRules(sheet).length, 1, 'New rule added');
+    equal(jss._getRules(sheet, '.someRule').length, 1, 'Retrieve new rule with selector');
+    equal(jss._getRules(sheet, '.someOtherRule').length, 0, 'Retrieve non-existent rule');
+
+    // Add another rule
+    var rule2 = jss._addRule(sheet, '.someOtherRule');
+    equal(jss._getRules(sheet).length, 2, 'Sheet has two rules');
+    equal(jss._getRules(sheet, '.someOtherRule').length, 1, 'Retrieve second rule with selector');
+
+    // Remove rules
+    var rules = jss._getRules(sheet);
+    jss._removeRule(rules[0]); // Shifting reference
+    equal(jss._getRules(sheet).length, 1, 'First rule removed');
+    jss._removeRule(rules[0]); // Shifting reference
+    equal(jss._getRules(sheet).length, 0, 'Second rule removed');
 });
