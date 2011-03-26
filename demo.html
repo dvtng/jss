@@ -1,5 +1,10 @@
 <html>
     <head>
+        <style>
+            #testHover:hover {
+                background-color: #abcdef;
+            }
+        </style>
         <script type="text/javascript" src="jss.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.js"></script>
         <script type="text/javascript">
@@ -13,6 +18,7 @@
                         padding: '10px'
                     });
                     window.console && console.dir(jss('.special').get());
+                    window.console && console.dir(jss('#testHover:hover').get());
                 }, 1000);
             };
         </script>

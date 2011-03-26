@@ -1,161 +1,147 @@
 /*
- * JSS v0.2 - JavaScript Stylesheets
+ * JSS 1.0 - JavaScript Stylesheets
  * https://github.com/Box9/jss
  *
- * Copyright (c) 2011, Dai Jun Tang
+ * Copyright (c) 2011, David Tang
  * MIT Licensed (http://www.opensource.org/licenses/mit-license.php)
  */
 
-var jss = (function (doc, undefined) {
-    var Jss,
-        jss,
-        _addRule,
-        _addSheet,
+var jss = (function (undefined) {
+    var jss,
+        jssInit,
+        Jss,
         // Shortcuts
+        doc = document,
         head = doc.head || doc.getElementsByTagName('head')[0],
-        styleSheets = doc.styleSheets;
+        sheets = doc.styleSheets;
     
-    Jss = function (selector) {
-        var sheet,
-            rules,
-            rule,
-            i,
-            j;
+    jss = function () {
+        return jssInit.apply(null, arguments);
+    };
+    
+    jss.dfault = null;
+    
+    
+    // Core functions for manipulating stylesheets
+    
+    jss._sheetToNode = function (sheet) {
+        return sheet.ownerNode || sheet.owningElement;
+    };
+    
+    jss._nodeToSheet = function (node) {
+        var result = null,
+            i;
         
-        this.rules = [];
-        
-        for (i = 0; i < styleSheets.length; i++) {
-            sheet = styleSheets[i];
-            rules = sheet.cssRules || sheet.rules;
-
-            for (j = 0; j < rules.length; j++) {
-                rule = rules[j];
-                // Warning, selectorText may not be correct in IE<9
-                // as it splits ',' into multiple selectors
-                if (rule.selectorText.toLowerCase() == selector) {
-                    // IE<9 support
-                    if (!rule.parentStyleSheet) rule.parentStyleSheet = sheet;
-                    this.rules.push(rule);
-                }
+        for (i = 0; i < sheets.length; i++) {
+            if (node === jss._sheetToNode(sheets[i])) {
+                result = sheets[i];
+                break;
             }
         }
         
-        this.selector = selector;
-        this.length = this.rules.length;
+        return result;
     };
     
-    Jss.prototype = {
-        get: function () {
-            // Returns static, consolidated map of properties
-            var props = {},
-                propName,
-                i,
-                j;
-            for (i = 0; i < this.rules.length; i++) {
-                for (j = 0; j < this.rules[i].style.length; j++) {
-                    propName = this.rules[i].style[j];
-                    props[propName] = this.rules[i].style[propName];
-                }
-            }
-            return props;
-        },
-        set: function (props) {
-            if (!props) return this;
-            
-            var styleNode,
-                i,
-                rule;
-            if (!jss.styleSheet) jss.styleSheet = _addSheet('jss');
-            // Find if there's a rule in the jss stylesheet
-            for (i = 0; i < this.length; i++) {
-                if (this.rules[i].parentStyleSheet === jss.styleSheet) {
-                    rule = this.rules[i];
-                    break;
-                }
-            }
-            if (!rule) {
-                // Add rule
-                rule = _addRule(jss.styleSheet, this.selector);
-                this.rules.push(rule);
-                this.length = this.rules.length;
-            }
-            // Add props
-            for (i in props) {
-                if (!props.hasOwnProperty(i)) continue;
-                rule.style[i] = props[i];
-            }
-            return this;
-        },
-        remove: function () {
-            var rule,
-                parentSheet,
-                rules,
-                i,
-                j;
-            for (i = 0; i < this.rules.length; i++) {
-                rule = this.rules[i];
-                parentSheet = rule.parentStyleSheet;
-                rules = parentSheet.cssRules || parentSheet.rules;
-                for (j = 0; j < rules.length; j++) {
-                    if (rules[j] === rule) {
-                        if (parentSheet.deleteRule) {
-                            parentSheet.deleteRule(j);
-                        } else if (parentSheet.removeRule) {
-                            parentSheet.removeRule(j);
-                        }
+    jss._getSheets = function (sheetSelector) {
+        var results = [],
+            node,
+            i;
+        
+        if (!sheetSelector) {
+            results = sheets;
+        } else if (typeof sheetSelector == 'number') {
+            results = [sheets[sheetSelector]];
+        } else if (typeof sheetSelector == 'object') {
+            if (sheetSelector.href) {
+                for (i = 0; i < sheets.length; i++) {
+                    node = jss._sheetToNode(sheets[i]);
+                    if (sheetSelector.href && node.href == sheetSelector.href ||
+                        sheetSelector.title && node.title == sheetSelector.title) {
+                        results.push(sheets[i]);
                     }
                 }
             }
-            this.rules.length = 0;
-            this.length = 0;
-            return this;
-        }
-    };
-    
-    jss = function (selector, props) {
-        var ret = new Jss(selector);
-        
-        if (props) {
-            ret.set(props);
         }
         
-        return ret;
+        return results;
     };
     
-    jss.fn = Jss.prototype;
+    jss._addSheet = function () {
+        var styleNode = doc.createElement('style'),
+            i;
+        
+        styleNode.type = 'text/css';
+        styleNode.rel = 'stylesheet';
+        head.appendChild(styleNode);
+        
+        return jss._nodeToSheet(styleNode);
+    };
     
-    _addRule = function (sheet, selector) {
+    jss._removeSheet = function (sheet) {
+        var node = jss._sheetToNode(sheet);
+        node.parentNode.removeChild(node);
+    };
+    
+    jss._getRules = function (sheet, selector) {
+        if (!selector) return sheet.cssRules || sheet.rules;
+        
+        var results = [],
+            rules = jss._getRules(sheet),
+            rule,
+            i;
+        
+        for (i = 0; i < rules.length; i++) {
+            rule = rules[i];
+            // Warning, selectorText may not be correct in IE<9
+            // as it splits selectors with ',' into multiple rules
+            if (rule.selectorText.toLowerCase() == selector.toLowerCase()) {
+                // IE<9 support
+                if (!rule.parentStyleSheet)
+                    rule.parentStyleSheet = sheet;
+                
+                results.push(rule);
+            }
+        }
+        
+        return results;
+    };
+    
+    jss._addRule = function (sheet, selector) {
+        var rule = null;
+        
         // Add (empty) rule
         if (sheet.insertRule) {
             sheet.insertRule(selector + ' { }', 0);
         } else if (sheet.addRule) {
             sheet.addRule(selector, null, 0);
         }
+        
         // Get added rule
         if (sheet.cssRules) {
-            return sheet.cssRules[0];
+            rule = sheet.cssRules[0];
         } else {
-            return sheet.rules[0];
+            rule = sheet.rules[0];
+        }
+        
+        // IE<9 support
+        if (rule && !rule.parentStyleSheet)
+            rule.parentStyleSheet = sheet;
+        
+        return rule;
+    };
+    
+    jss._removeRule = function (rule) {
+        var parentSheet = rule.parentStyleSheet;
+        if (parentSheet.deleteRule) {
+            parentSheet.deleteRule(rule);
+        } else if (parentSheet.removeRule) {
+            parentSheet.removeRule(rule);
         }
     };
     
-    _addSheet = function (title) {
-        var styleNode,
-            i;
-        styleNode = doc.createElement('style');
-        styleNode.type = 'text/css';
-        styleNode.rel = 'stylesheet';
-        styleNode.media = 'screen';
-        styleNode.title = title;
-        head.appendChild(styleNode);
-        // Get added stylesheet object
-        for (i = 0; i < styleSheets.length; i++) {
-            if (styleNode === (styleSheets[i].ownerNode
-                    || styleSheets[i].owningElement)) {
-                return styleSheets[i];
-            }
-        }
-    };
-
+    
+    // Object structure for some code candy
+    
+    
     return jss;
-})(document);
+})();
