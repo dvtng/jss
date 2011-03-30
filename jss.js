@@ -112,16 +112,19 @@ var jss = (function (undefined) {
 
     // Add an (empty) rule
     jss._addRule = function (sheet, selector) {
+        var rules = sheet.cssRules || sheet.rules,
+            index = rules.length;
+
         if (sheet.insertRule) {
-            sheet.insertRule(selector + ' { }', 0);
+            sheet.insertRule(selector + ' { }', index);
         } else if (sheet.addRule) {
-            sheet.addRule(selector, null, 0);
+            sheet.addRule(selector, null, index);
         }
         
         return {
             sheet: sheet,
-            index: 0,
-            style: (sheet.cssRules || sheet.rules)[0].style
+            index: index,
+            style: rules[index].style
         };
     };
     
