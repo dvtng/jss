@@ -19,7 +19,11 @@
                     });
                     window.console && console.dir(jss('.special').get());
                     window.console && console.dir(jss('#testHover:hover').get());
+
                 }, 1000);
+                setTimeout(function () {
+                    jss('.special').remove();
+                }, 2000);
             };
         </script>
     </head>

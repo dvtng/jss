@@ -82,59 +82,57 @@ var jss = (function (undefined) {
     };
     
     jss._getRules = function (sheet, selector) {
-        if (!selector) return sheet.cssRules || sheet.rules;
-        
         var results = [],
-            rules = jss._getRules(sheet),
-            rule,
+            rules,
             i;
-        
-        for (i = 0; i < rules.length; i++) {
-            rule = rules[i];
-            // Warning, selectorText may not be correct in IE<9
-            // as it splits selectors with ',' into multiple rules
-            if (rule.selectorText.toLowerCase() == selector.toLowerCase()) {
-                // IE<9 support
-                if (!rule.parentStyleSheet)
-                    rule.parentStyleSheet = sheet;
-                
-                results.push(rule);
+
+        if (typeof sheet.length == 'number') {
+            // Array of sheets
+            for (i = 0; i < sheet.length; i++) {
+                results = results.concat(jss._getRules(sheet[i], selector));
+            }
+        } else {
+            // Single sheet
+            rules = sheet.cssRules || sheet.rules;
+            for (i = 0; i < rules.length; i++) {
+                // Warning, selectorText may not be correct in IE<9
+                // as it splits selectors with ',' into multiple rules
+                if (rules[i].selectorText.toLowerCase() == selector.toLowerCase()) {
+                    results.push({
+                        sheet: sheet,
+                        index: i,
+                        style: rules[i].style
+                    });
+                }
             }
         }
-        
+
         return results;
     };
-    
+
+    // Add an (empty) rule
     jss._addRule = function (sheet, selector) {
-        var rule = null;
-        
-        // Add (empty) rule
         if (sheet.insertRule) {
             sheet.insertRule(selector + ' { }', 0);
         } else if (sheet.addRule) {
             sheet.addRule(selector, null, 0);
         }
         
-        // Get added rule
-        if (sheet.cssRules) {
-            rule = sheet.cssRules[0];
-        } else {
-            rule = sheet.rules[0];
-        }
-        
-        // IE<9 support
-        if (rule && !rule.parentStyleSheet)
-            rule.parentStyleSheet = sheet;
-        
-        return rule;
+        return {
+            sheet: sheet,
+            index: 0,
+            style: (sheet.cssRules || sheet.rules)[0].style
+        };
     };
     
     jss._removeRule = function (rule) {
-        var parentSheet = rule.parentStyleSheet;
-        if (parentSheet.deleteRule) {
-            parentSheet.deleteRule(rule);
-        } else if (parentSheet.removeRule) {
-            parentSheet.removeRule(rule);
+        var sheet = rule.sheet,
+            index = rule.index;
+
+        if (sheet.deleteRule) {
+            sheet.deleteRule(index);
+        } else if (sheet.removeRule) {
+            sheet.removeRule(index);
         }
     };
     
@@ -160,13 +158,6 @@ var jss = (function (undefined) {
             }
 
             this.selector = selector;
-            // TODO: because rules change, shouldn't try to cache it
-            this.rules = [];
-
-            for (i = 0; i < this.sheets.length; i++) {
-                this.rules =
-                    this.rules.concat(jss._getRules(this.sheets[i], selector));
-            }
 
             return this;
         },
@@ -176,8 +167,7 @@ var jss = (function (undefined) {
             // Add new rule to every sheet that doesn't already have it
             for (i = 0; i < this.sheets.length; i++) {
                 if (jss._getRules(this.sheets[i], this.selector).length == 0) {
-                    this.rules.push(
-                        jss._addRule(this.sheets[i], this.selector));
+                    jss._addRule(this.sheets[i], this.selector);
                 }
             }
 
@@ -186,7 +176,8 @@ var jss = (function (undefined) {
             return this;
         },
         set: function (prop, value) {
-            var i;
+            var i,
+                rules;
 
             if (value === undefined) {
                 if (prop && typeof prop == 'object') {
@@ -196,8 +187,10 @@ var jss = (function (undefined) {
                     }
                 }
             } else {
-                for (i = 0; i < this.rules.length; i++) {
-                    this.rules[i].style[prop] = value;
+                rules = jss._getRules(this.sheets, this.selector);
+                // Set properties for each rule
+                for (i = 0; i < rules.length; i++) {
+                    rules[i].style[prop] = value;
                 }
             }
 
@@ -205,23 +198,24 @@ var jss = (function (undefined) {
         },
         get: function (prop) {
             var result,
+                rules = jss._getRules(this.sheets, this.selector),
                 propName,
                 i,
                 j;
 
             if (prop !== undefined) {
-                for (i = this.rules.length - 1; i >=0; i--) {
-                    if (this.rules[i].style[prop] != null) {
-                        result = this.rules[i].style[prop];
+                for (i = rules.length - 1; i >=0; i--) {
+                    if (rules[i].style[prop] != null) {
+                        result = rules[i].style[prop];
                         break;
                     }
                 }
             } else {
                 result = {};
-                for (i = 0; i < this.rules.length; i++) {
-                    for (j = 0; j < this.rules[i].style.length; j++) {
-                        propName = this.rules[i].style[j];
-                        result[propName] = this.rules[i].style[propName];
+                for (i = 0; i < rules.length; i++) {
+                    for (j = 0; j < rules[i].style.length; j++) {
+                        propName = rules[i].style[j];
+                        result[propName] = rules[i].style[propName];
                     }
                 }
             }
@@ -229,10 +223,12 @@ var jss = (function (undefined) {
             return result;
         },
         remove: function () {
-            while (this.rules.length) {
-                // Need to re-init because rule references shift
-                this.init(this.selector);
-                jss._removeRule(this.rules[0]);
+            var rules = jss._getRules(this.sheets, this.selector),
+                i;
+
+            // Remove backwards so indices don't shift
+            for (i = rules.length - 1; i >= 0; i--) {
+                jss._removeRule(rules[i]);
             }
         }
     };
