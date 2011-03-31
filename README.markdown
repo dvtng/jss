@@ -1,8 +1,8 @@
-# JSS v0.2
+# JSS v0.3
 
 A simple JavaScript library for getting/setting CSS stylesheet rules.
 
-* Tiny - ~150 lines of code.
+* Tiny - ~250 lines of code.
 * No dependencies.
 * MIT Licensed.
 
