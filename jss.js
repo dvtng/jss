@@ -96,8 +96,9 @@ var jss = (function (undefined) {
             rules = sheet.cssRules || sheet.rules;
             for (i = 0; i < rules.length; i++) {
                 // Warning, selectorText may not be correct in IE<9
-                // as it splits selectors with ',' into multiple rules
-                if (rules[i].selectorText.toLowerCase() == selector.toLowerCase()) {
+                // as it splits selectors with ',' into multiple rules.
+                // Also, certain rules (e.g. @rules) don't have selectorText
+                if (rules[i].selectorText && rules[i].selectorText.toLowerCase() == selector.toLowerCase()) {
                     results.push({
                         sheet: sheet,
                         index: i,
