@@ -98,18 +98,42 @@ var jss = (function (undefined) {
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits selectors with ',' into multiple rules.
                 // Also, certain rules (e.g. @rules) don't have selectorText
-                if (rules[i].selectorText && rules[i].selectorText.toLowerCase() == selector.toLowerCase()) {
-                    results.push({
-                        sheet: sheet,
-                        index: i,
-                        style: rules[i].style
-                    });
+				// IE9 also stores classes adj to each other in reverse order, so we also check for that possibility 
+				// i.e. both .classA.classB and .classB.classA, which are functionally equivalent anyway
+				if (rules[i].selectorText) {
+					ruleText = rules[i].selectorText.toLowerCase();
+					selText = selector.toLowerCase();					
+					if (ruleText == selText ||
+							ruleText == jss._swapAdjClasses(selText)) {
+								results.push({
+								sheet: sheet,
+								index: i,
+								style: rules[i].style
+							});
+					}
                 }
             }
         }
 
         return results;
     };
+	
+	// IE9 stores rules with classes adjacent in the opposite order as defined, causing them to not be found, so this method swaps .classA.classB, to .classB.classA
+	jss._swapAdjClasses = function (selector) {
+		var swap = '',
+			lastIndex = 0;
+			
+		while ((match = adjClsRgx.exec(selector)) != null) {
+			if (match[0] == '') break;
+			swap += selector.substring(lastIndex, match.index);
+			swap += selector.substr(match.index + match[1].length, match[2].length);
+			swap += selector.substr(match.index, match[1].length);
+			lastIndex = match.index + match[0].length;
+		}
+		swap += selector.substr(lastIndex);
+		
+		return swap;
+	};
 
     // Add an (empty) rule
     jss._addRule = function (sheet, selector) {
