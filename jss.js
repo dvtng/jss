@@ -13,7 +13,7 @@ var jss = (function (undefined) {
         doc = document,
         head = doc.head || doc.getElementsByTagName('head')[0],
         sheets = doc.styleSheets,
-		adjClsRgx = /(\.[^\.\s]+)(\.[^\.\s]+)/g;
+		adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
     
     jss = function (selector, sheet) {
         var obj = new Jss();
@@ -101,13 +101,12 @@ var jss = (function (undefined) {
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits selectors with ',' into multiple rules.
                 // Also, certain rules (e.g. @rules) don't have selectorText
-				// IE9 also stores classes adj to each other in reverse order, so we also check for that possibility 
-				// i.e. both .classA.classB and .classB.classA, which are functionally equivalent anyway
+				// See also comment on _swapAdjSelAttr for why it's here
 				if (rules[i].selectorText) {
 					ruleText = rules[i].selectorText.toLowerCase();
 					selText = selector.toLowerCase();					
 					if (ruleText == selText ||
-							ruleText == jss._swapAdjClasses(selText)) {
+							ruleText == jss._swapAdjSelAttr(selText)) {
 								results.push({
 								sheet: sheet,
 								index: i,
@@ -121,12 +120,12 @@ var jss = (function (undefined) {
         return results;
     };
 	
-	// IE9 stores rules with classes adjacent in the opposite order as defined, causing them to not be found, so this method swaps .classA.classB, to .classB.classA
-	jss._swapAdjClasses = function (selector) {
+	// IE9 stores rules with attributes (classes or ID's) adjacent in the opposite order as defined, causing them to not be found, so this method swaps [#|.]sel1[#|.]sel2 to become [#|.]sel1[#|.]sel1
+	jss._swapAdjSelAttr = function (selector) {
 		var swap = '',
 			lastIndex = 0;
 			
-		while ((match = adjClsRgx.exec(selector)) != null) {
+		while ((match = adjSelAttrRgx.exec(selector)) != null) {
 			if (match[0] == '') break;
 			swap += selector.substring(lastIndex, match.index);
 			swap += selector.substr(match.index + match[1].length, match[2].length);
