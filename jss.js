@@ -12,7 +12,8 @@ var jss = (function (undefined) {
         // Shortcuts
         doc = document,
         head = doc.head || doc.getElementsByTagName('head')[0],
-        sheets = doc.styleSheets;
+        sheets = doc.styleSheets,
+		adjClsRgx = /(\.[^\.\s]+)(\.[^\.\s]+)/g;
     
     jss = function (selector, sheet) {
         var obj = new Jss();
@@ -84,7 +85,9 @@ var jss = (function (undefined) {
     jss._getRules = function (sheet, selector) {
         var results = [],
             rules,
-            i;
+            i,
+			ruleText,
+			selText;
 
         if (typeof sheet.length == 'number') {
             // Array of sheets
