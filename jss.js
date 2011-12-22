@@ -120,7 +120,7 @@ var jss = (function (undefined) {
         return results;
     };
 	
-	// IE9 stores rules with attributes (classes or ID's) adjacent in the opposite order as defined, causing them to not be found, so this method swaps [#|.]sel1[#|.]sel2 to become [#|.]sel1[#|.]sel1
+	// IE9 stores rules with attributes (classes or ID's) adjacent in the opposite order as defined, causing them to not be found, so this method swaps [#|.]sel1[#|.]sel2 to become [#|.]sel2[#|.]sel1
 	jss._swapAdjSelAttr = function (selector) {
 		var swap = '',
 			lastIndex = 0;
