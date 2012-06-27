@@ -12,7 +12,8 @@ var jss = (function (undefined) {
         // Shortcuts
         doc = document,
         head = doc.head || doc.getElementsByTagName('head')[0],
-        sheets = doc.styleSheets;
+        sheets = doc.styleSheets,
+		adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
     
     jss = function (selector, sheet) {
         var obj = new Jss();
@@ -84,7 +85,9 @@ var jss = (function (undefined) {
     jss._getRules = function (sheet, selector) {
         var results = [],
             rules,
-            i;
+            i,
+			ruleText,
+			selText;
 
         if (typeof sheet.length == 'number') {
             // Array of sheets
@@ -98,18 +101,42 @@ var jss = (function (undefined) {
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits selectors with ',' into multiple rules.
                 // Also, certain rules (e.g. @rules) don't have selectorText
-                if (rules[i].selectorText && rules[i].selectorText.toLowerCase() == selector.toLowerCase()) {
-                    results.push({
-                        sheet: sheet,
-                        index: i,
-                        style: rules[i].style
-                    });
+				// See also comment on _swapAdjSelAttr for why it's here
+				if (rules[i].selectorText) {
+					ruleText = rules[i].selectorText.toLowerCase();
+					selText = selector.toLowerCase();					
+					if (ruleText == selText ||
+							ruleText == jss._swapAdjSelAttr(selText)) {
+								results.push({
+								sheet: sheet,
+								index: i,
+								style: rules[i].style
+							});
+					}
                 }
             }
         }
 
         return results;
     };
+	
+	// IE9 stores rules with attributes (classes or ID's) adjacent in the opposite order as defined
+	// causing them to not be found, so this method swaps [#|.]sel1[#|.]sel2 to become [#|.]sel2[#|.]sel1
+	jss._swapAdjSelAttr = function (selector) {
+		var swap = '',
+			lastIndex = 0;
+			
+		while ((match = adjSelAttrRgx.exec(selector)) != null) {
+			if (match[0] == '') break;
+			swap += selector.substring(lastIndex, match.index);
+			swap += selector.substr(match.index + match[1].length, match[2].length);
+			swap += selector.substr(match.index, match[1].length);
+			lastIndex = match.index + match[0].length;
+		}
+		swap += selector.substr(lastIndex);
+		
+		return swap;
+	};
 
     // Add an (empty) rule
     jss._addRule = function (sheet, selector) {
