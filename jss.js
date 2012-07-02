@@ -13,14 +13,13 @@ var jss = (function (undefined) {
         doc = document,
         head = doc.head || doc.getElementsByTagName('head')[0],
         sheets = doc.styleSheets,
-		adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
+        adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
     
     jss = function (selector, sheet) {
         var obj = new Jss();
         obj.init(selector, sheet);
         return obj;
     };
-    
     
     // Core functions for manipulating stylesheets
     
@@ -86,8 +85,11 @@ var jss = (function (undefined) {
         var results = [],
             rules,
             i,
-			ruleText,
-			selText;
+            ruleText,
+            selText;
+
+        // Browsers report selectors in lowercase
+        if (selector) selector = selector.toLowerCase();
 
         if (typeof sheet.length == 'number') {
             // Array of sheets
@@ -101,42 +103,39 @@ var jss = (function (undefined) {
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits selectors with ',' into multiple rules.
                 // Also, certain rules (e.g. @rules) don't have selectorText
-				// See also comment on _swapAdjSelAttr for why it's here
-				if (rules[i].selectorText) {
-					ruleText = rules[i].selectorText.toLowerCase();
-					selText = selector.toLowerCase();					
-					if (ruleText == selText ||
-							ruleText == jss._swapAdjSelAttr(selText)) {
-								results.push({
-								sheet: sheet,
-								index: i,
-								style: rules[i].style
-							});
-					}
+                if (rules[i].selectorText) {
+                    ruleText = rules[i].selectorText;
+                    if (!selector || ruleText == selector || ruleText == jss._swapAdjSelAttr(selector)) {
+                        results.push({
+                            sheet: sheet,
+                            index: i,
+                            style: rules[i].style
+                        });
+                    }
                 }
             }
         }
 
         return results;
     };
-	
-	// IE9 stores rules with attributes (classes or ID's) adjacent in the opposite order as defined
-	// causing them to not be found, so this method swaps [#|.]sel1[#|.]sel2 to become [#|.]sel2[#|.]sel1
-	jss._swapAdjSelAttr = function (selector) {
-		var swap = '',
-			lastIndex = 0;
-			
-		while ((match = adjSelAttrRgx.exec(selector)) != null) {
-			if (match[0] == '') break;
-			swap += selector.substring(lastIndex, match.index);
-			swap += selector.substr(match.index + match[1].length, match[2].length);
-			swap += selector.substr(match.index, match[1].length);
-			lastIndex = match.index + match[0].length;
-		}
-		swap += selector.substr(lastIndex);
-		
-		return swap;
-	};
+    
+    // IE9 stores rules with attributes (classes or ID's) adjacent in the opposite order as defined
+    // causing them to not be found, so this method swaps [#|.]sel1[#|.]sel2 to become [#|.]sel2[#|.]sel1
+    jss._swapAdjSelAttr = function (selector) {
+        var swap = '',
+            lastIndex = 0;
+            
+        while ((match = adjSelAttrRgx.exec(selector)) != null) {
+            if (match[0] == '') break;
+            swap += selector.substring(lastIndex, match.index);
+            swap += selector.substr(match.index + match[1].length, match[2].length);
+            swap += selector.substr(match.index, match[1].length);
+            lastIndex = match.index + match[0].length;
+        }
+        swap += selector.substr(lastIndex);
+        
+        return swap;
+    };
 
     // Add an (empty) rule
     jss._addRule = function (sheet, selector) {
@@ -168,8 +167,8 @@ var jss = (function (undefined) {
     };
     
     jss._toCamelCase = function(prop) {
-		return prop.replace(/-([a-z])/gi, function(s, group1) {return group1.toUpperCase();});
-	};
+        return prop.replace(/-([a-z])/gi, function(s, group1) {return group1.toUpperCase();});
+    };
     
     // Object structure for some code candy
     Jss = function () {};
@@ -192,7 +191,7 @@ var jss = (function (undefined) {
             }
 
             this.selector = selector;
-			
+            
             return this;
         },
         add: function (prop, value) {
@@ -212,7 +211,7 @@ var jss = (function (undefined) {
         set: function (prop, value) {
             var i,
                 rules,
-				propName;
+                propName;
 
             if (value === undefined) {
                 if (prop && typeof prop == 'object') {
@@ -223,7 +222,7 @@ var jss = (function (undefined) {
                 }
             } else {
                 rules = jss._getRules(this.sheets, this.selector);
-				propName = jss._toCamelCase(prop);
+                propName = jss._toCamelCase(prop);
                 // Set properties for each rule
                 for (i = 0; i < rules.length; i++) {
                     rules[i].style[propName] = value;
@@ -240,9 +239,9 @@ var jss = (function (undefined) {
                 j;
 
             if (prop !== undefined) {
-				propName = jss._toCamelCase(prop);
+                propName = jss._toCamelCase(prop);
                 for (i = rules.length - 1; i >=0; i--) {
-					// added test for emtpy string to handle style selector defined more than once
+                    // added test for emtpy string to handle style selector defined more than once
                     if (rules[i].style[propName] != null && rules[i].style[propName] != '') {
                         result = rules[i].style[propName];
                         break;
@@ -252,12 +251,12 @@ var jss = (function (undefined) {
                 result = {};
                 for (i = 0; i < rules.length; i++) {
                     for (j = 0; j < rules[i].style.length; j++) {
-						propName = rules[i].style[j];
-						result[propName] = rules[i].style[propName];
+                        propName = rules[i].style[j];
+                        result[propName] = rules[i].style[propName];
                     }
                 }
             }
-			
+            
             return result;
         },
         remove: function () {
