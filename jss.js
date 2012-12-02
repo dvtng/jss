@@ -91,14 +91,17 @@ var jss = (function (undefined) {
         // Browsers report selectors in lowercase
         if (selector) selector = selector.toLowerCase();
 
-        if (typeof sheet.length == 'number') {
+        if (sheet && typeof sheet.length == 'number') {
             // Array of sheets
             for (i = 0; i < sheet.length; i++) {
                 results = results.concat(jss._getRules(sheet[i], selector));
             }
-        } else {
+        } else if (sheet) {
             // Single sheet
             rules = sheet.cssRules || sheet.rules;
+            if (!rules || !rules.length) {
+                return results;
+            }
             for (i = 0; i < rules.length; i++) {
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits selectors with ',' into multiple rules.
