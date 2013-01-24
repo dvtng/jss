@@ -104,7 +104,7 @@ var jss = (function (undefined) {
                 // as it splits selectors with ',' into multiple rules.
                 // Also, certain rules (e.g. @rules) don't have selectorText
                 if (rules[i].selectorText) {
-                    ruleText = rules[i].selectorText;
+                    ruleText = rules[i].selectorText.toLowerCase();
                     if (!selector || ruleText == selector || ruleText == jss._swapAdjSelAttr(selector)) {
                         results.push({
                             sheet: sheet,
