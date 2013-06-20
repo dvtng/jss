@@ -15,7 +15,11 @@ var jss = (function (undefined) {
         sheets = doc.styleSheets,
         adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
     
-    jss = function (selector, sheet) {
+    jss = function (selector, sheet, iframeDoc) {
+        doc = iframeDoc || document;
+        head = doc.head || doc.getElementsByTagName('head')[0];
+        sheets = doc.styleSheets;
+
         var obj = new Jss();
         obj.init(selector, sheet);
         return obj;
@@ -180,9 +184,13 @@ var jss = (function (undefined) {
             if (sheet == null) {
                 if (!this.sheets) this.sheets = jss._getSheets();
             } else if (sheet === jss) {
-                if (jss.dfault === undefined)
-                    jss.dfault = jss._addSheet();
-                this.sheets = [jss.dfault];
+                if (jss.dfault === undefined || jss.dfault.doc !== doc) {
+                    jss.dfault = {
+                        doc : doc,
+                        sheet : jss._addSheet()
+                    };
+                }
+                this.sheets = [jss.dfault.sheet];
             } else if (typeof sheet == 'number') {
                 this.sheets = jss._getSheets(sheet);
             } else if (typeof sheet == 'object') {
