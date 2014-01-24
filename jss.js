@@ -98,7 +98,7 @@ var jss = (function (undefined) {
             }
         } else {
             // Single sheet
-            rules = sheet.cssRules || sheet.rules;
+            rules = sheet.cssRules || sheet.rules || [];
             if (rules !== null) {
                 for (i = 0; i < rules.length; i++) {
                     // Warning, selectorText may not be correct in IE<9
