@@ -99,7 +99,7 @@ var jss = (function (undefined) {
         } else {
             // Single sheet
             rules = sheet.cssRules || sheet.rules;
-            for (i = 0; i < rules.length; i++) {
+            if(rules!==null) for (i = 0; i < rules.length; i++) {
                 // Warning, selectorText may not be correct in IE<9
                 // as it splits selectors with ',' into multiple rules.
                 // Also, certain rules (e.g. @rules) don't have selectorText
