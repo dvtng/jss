@@ -99,18 +99,20 @@ var jss = (function (undefined) {
         } else {
             // Single sheet
             rules = sheet.cssRules || sheet.rules;
-            if(rules!==null) for (i = 0; i < rules.length; i++) {
-                // Warning, selectorText may not be correct in IE<9
-                // as it splits selectors with ',' into multiple rules.
-                // Also, certain rules (e.g. @rules) don't have selectorText
-                if (rules[i].selectorText) {
-                    ruleText = rules[i].selectorText;
-                    if (!selector || ruleText == selector || ruleText == jss._swapAdjSelAttr(selector)) {
-                        results.push({
-                            sheet: sheet,
-                            index: i,
-                            style: rules[i].style
-                        });
+            if (rules !== null) {
+                for (i = 0; i < rules.length; i++) {
+                    // Warning, selectorText may not be correct in IE<9
+                    // as it splits selectors with ',' into multiple rules.
+                    // Also, certain rules (e.g. @rules) don't have selectorText
+                    if (rules[i].selectorText) {
+                        ruleText = rules[i].selectorText;
+                        if (!selector || ruleText == selector || ruleText == jss._swapAdjSelAttr(selector)) {
+                            results.push({
+                                sheet: sheet,
+                                index: i,
+                                style: rules[i].style
+                            });
+                        }
                     }
                 }
             }
