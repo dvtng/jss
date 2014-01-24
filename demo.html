@@ -1,33 +1,82 @@
+<!doctype html>
 <html>
     <head>
         <style>
-            #testHover:hover {
-                background-color: #abcdef;
+            body {
+                font: 16px sans-serif;
+                color: #333;
+                width: 500px;
+                margin: 50px auto;
+            }
+            code {
+                color: teal;
+            }
+            .comment {
+                color: #333;
+                opacity: 0.8;
+                margin-bottom: 5px;
+            }
+            .radio-option {
+                display: block;
+                margin: 5px 0;
             }
         </style>
-        <script type="text/javascript" src="jss.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.js"></script>
-        <script type="text/javascript">
-            window.onload = function () {
-                setTimeout(function () {
-                    jss('.special', {
-                        color: 'red',
-                        fontSize: '2em'
-                    });
-                    jss('.special', {
-                        padding: '10px'
-                    });
-                    window.console && console.dir(jss('.special').get());
-                    window.console && console.dir(jss('#testHover:hover').get());
-
-                }, 1000);
-                setTimeout(function () {
-                    jss('.special').remove();
-                }, 2000);
-            };
+        <script src="jss.js"></script>
+        <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script>
+            $(function() {
+                function updateOutput() {
+                    $('#jss-output').html(
+                        '<p class="comment">// Output for jss(\'code\').get();</p>' + JSON.stringify(jss('code').get())
+                    );
+                }
+                $('input[name="colour"]').change(function() {
+                    jss('code', { color: $(this).val() });
+                    updateOutput();
+                });
+                $('input[name="font-style"]').change(function() {
+                    jss('code', { 'font-style': $(this).val() });
+                    updateOutput();
+                });
+                $('#option-teal, #option-normal').click();
+            });
         </script>
     </head>
     <body>
-        <div class="special">Test Div</div>
+        <h1>Thanks for trying out JSS</h1>
+        <p>You can add a new rule (or extend an existing rule) as follows:</p>
+        <code>
+            jss('code', {
+                color: teal;
+            });
+        </code>
+        <p>You can retrieve the rules for a specific CSS selector as follows:</p>
+        <code>
+            jss('code').get();
+        </code>
+        <p>This will return an object:</p>
+        <code>{"color":"teal"}</code>
+        <p>You can also completely remove an existing rule using:</p>
+        <code>jss('code').remove();</code>
+        <h2>Here's a live example:</h2>
+        <code id="jss-output"></code>
+        <p>Choose your colour:</p>
+        <div class="radio-option">
+            <input type="radio" name="colour" id="option-teal" value="teal">
+            <label for="option-teal">Teal</label>
+        </div>
+        <div class="radio-option"> 
+            <input type="radio" name="colour" id="option-salmon" value="salmon">
+            <label for="option-salmon">Salmon</label>
+        <div>
+        <p>Choose your font style:</p>
+        <div class="radio-option">
+            <input type="radio" name="font-style" id="option-normal" value="normal">
+            <label for="option-normal">Normal</label>
+        </div>
+        <div class="radio-option">
+            <input type="radio" name="font-style" id="option-italic" value="italic">
+            <label for="option-italic">Italic</label>
+        </div>
     </body>
 </html>
