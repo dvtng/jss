@@ -27,15 +27,15 @@
             $(function() {
                 function updateOutput() {
                     $('#jss-output').html(
-                        '<p class="comment">// Output for jss(\'code\').get();</p>' + JSON.stringify(jss('code').get())
+                        '<p class="comment">// Output for jss(\'code\').getAll();</p>' + JSON.stringify(jss.getAll('code'))
                     );
                 }
                 $('input[name="colour"]').change(function() {
-                    jss('code', { color: $(this).val() });
+                    jss.set('code', { color: $(this).val() });
                     updateOutput();
                 });
                 $('input[name="font-style"]').change(function() {
-                    jss('code', { 'font-style': $(this).val() });
+                    jss.set('code', { 'font-style': $(this).val() });
                     updateOutput();
                 });
                 $('#option-teal, #option-normal').click();
@@ -46,18 +46,18 @@
         <h1>Thanks for trying out JSS</h1>
         <p>You can add a new rule (or extend an existing rule) as follows:</p>
         <code>
-            jss('code', {
+            jss.set('code', {
                 color: teal;
             });
         </code>
         <p>You can retrieve the rules for a specific CSS selector as follows:</p>
         <code>
-            jss('code').get();
+            jss.getAll('code');
         </code>
         <p>This will return an object:</p>
         <code>{"color":"teal"}</code>
         <p>You can also completely remove an existing rule using:</p>
-        <code>jss('code').remove();</code>
+        <code>jss.remove('code');</code>
         <h2>Here's a live example:</h2>
         <code id="jss-output"></code>
         <p>Choose your colour:</p>

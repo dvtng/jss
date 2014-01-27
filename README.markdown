@@ -14,7 +14,7 @@ Download and include `jss.js` in your HTML:
 
 Add new rule (or extend existing rule):
 
-    jss('.special', {
+    jss.set('.special', {
         color: 'red',
         fontSize: '2em',
         padding: '10px'
@@ -22,7 +22,7 @@ Add new rule (or extend existing rule):
 
 Retrieve existing rule:
 
-    jss('.special').get();
+    jss.get('.special');
 
     // Returns:
     {
@@ -36,7 +36,7 @@ Retrieve existing rule:
 
 Remove existing rule:
 
-    jss('.special').remove();
+    jss.remove('.special');
 
 ## Why generate CSS with JS?
 
