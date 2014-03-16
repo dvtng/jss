@@ -1,0 +1,5 @@
+{
+    "name": "jss",
+    "version": "0.3",
+    "ignore": [ "test/*" ]
+}
