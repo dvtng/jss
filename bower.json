@@ -1,5 +1,5 @@
 {
     "name": "jss",
     "version": "0.4",
-    "ignore": [ "test/*" ]
+    "ignore": [ "test", "test/*" ]
 }
