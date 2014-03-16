@@ -8,10 +8,27 @@
 var jss = (function(undefined) {
     var adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
 
+    function getSelectorsAndRules(sheet) {
+        var rules = sheet.cssRules || sheet.rules || [];
+        var results = {};
+        for (var i = 0; i < rules.length; i++) {
+            var selectorText = rules[i].selectorText;
+            if (!results[selectorText]) {
+                results[selectorText] = [];
+            }
+            results[selectorText].push({
+                sheet: sheet,
+                index: i,
+                style: rules[i].style
+            });
+        }
+        return results;
+    }
+
     function getRules(sheet, selector) {
         var rules = sheet.cssRules || sheet.rules || [];
         var results = [];
-        // Browsers report selectors in lowercase - TODO check how true this is cross-browser
+        // Browsers report selectors in lowercase
         selector = selector.toLowerCase();
         for (var i = 0; i < rules.length; i++) {
             // IE8 will split comma-delimited selectors into multiple rules, breaking our matching
@@ -72,7 +89,7 @@ var jss = (function(undefined) {
     function declaredProperties(style) {
         var declared = {};
         for (var i = 0; i < style.length; i++) {
-            declared[style[i]] = style[style[i]];
+            declared[style[i]] = style[toCamelCase(style[i])];
         }
         return declared;
     }
@@ -96,6 +113,22 @@ var jss = (function(undefined) {
         return swap;
     };
 
+    // FF will only recognise properties specified in camel-case
+    function sanitiseProperties(oldProps) {
+        var newProps = {};
+        for (oldKey in oldProps) {
+            var newKey = toCamelCase(oldKey);
+            newProps[newKey] = oldProps[oldKey]
+        }
+        return newProps;
+    }
+
+    function toCamelCase(str) {
+        return str.replace(/-([a-z])/g, function (match, submatch) {
+            return submatch.toUpperCase();
+        });
+    }
+
     var Jss = function(doc) {
         this.doc = doc;
         this.head = this.doc.head || this.doc.getElementsByTagName('head')[0];
@@ -103,9 +136,21 @@ var jss = (function(undefined) {
     };
 
     Jss.prototype = {
+        // Returns JSS rules (selector is optional)
         get: function(selector) {
-            return this.defaultSheet ? aggregateStyles(getRules(this.defaultSheet, selector)) : {};
+            if (!this.defaultSheet) {
+                return {};
+            }
+            if (selector) {
+                return aggregateStyles(getRules(this.defaultSheet, selector));
+            }
+            var rules = getSelectorsAndRules(this.defaultSheet);
+            for (selector in rules) {
+                rules[selector] = aggregateStyles(rules[selector]);
+            }
+            return rules;
         },
+        // Returns all rules (selector is required)
         getAll: function(selector) {
             var properties = {};
             for (var i = 0; i < this.sheets.length; i++) {
@@ -113,10 +158,12 @@ var jss = (function(undefined) {
             }
             return properties;
         },
+        // Adds JSS rules for the selector based on the given properties
         set: function(selector, properties) {
             if (!this.defaultSheet) {
                 this.defaultSheet = this._createSheet();
             }
+            properties = sanitiseProperties(properties);
             var rules = getRules(this.defaultSheet, selector);
             if (!rules.length) {
                 rules = [addRule(this.defaultSheet, selector)];
@@ -125,22 +172,20 @@ var jss = (function(undefined) {
                 extend(rules[i].style, properties);
             }
         },
+        // Removes JSS rules (selector is optional)
         remove: function(selector) {
             if (!this.defaultSheet)
                 return;
-            if (selector) {
-                // Removes all rules for the selector added via JSS
-                var rules = getRules(this.defaultSheet, selector);
-                for (var i = 0; i < rules.length; i++) {
-                    removeRule(rules[i]);
-                }
-                return rules.length;
-            }
-            else {
-                // Remove all JSS rules by removing the default sheet
+            if (!selector) {
                 this._removeSheet(this.defaultSheet);
                 delete this.defaultSheet;
+                return;
             }
+            var rules = getRules(this.defaultSheet, selector);
+            for (var i = 0; i < rules.length; i++) {
+                removeRule(rules[i]);
+            }
+            return rules.length;
         },
         _createSheet: function() {
             var styleNode = this.doc.createElement('style');
