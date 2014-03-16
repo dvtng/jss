@@ -79,3 +79,18 @@ test('calling remove with a selector only removes styles for that selector', fun
     equal(Object.keys(jss.get('#jss-test')).length, 0);
     equal(jss.get('#alternative-element')['color'], 'blue');
 });
+
+test('set style without !important modifier', function() {
+    jss.set('#jss-test', { 'color': 'blue' });
+    jss.set('div', { 'color': 'red' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['color'], 'rgb(0, 0, 255)');
+});
+
+test('set style with !important modifier', function() {
+    jss.set('#jss-test', { 'background-color': 'blue' });
+    jss.set('div', { 'background-color': 'red !important' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['backgroundColor'], 'rgb(255, 0, 0)');
+
+    jss.set('#jss-test', { 'background-color': 'blue !important' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['backgroundColor'], 'rgb(0, 0, 255)');
+});

@@ -113,14 +113,17 @@ var jss = (function(undefined) {
         return swap;
     };
 
-    // FF will only recognise properties specified in camel-case
-    function sanitiseProperties(oldProps) {
-        var newProps = {};
-        for (oldKey in oldProps) {
-            var newKey = toCamelCase(oldKey);
-            newProps[newKey] = oldProps[oldKey]
+    function setStyleProperties(rule, properties) {
+        for (key in properties) {
+            var value = properties[key];
+            var importantIndex = value.indexOf(' !important');
+            if (importantIndex > 0) {
+                rule.style.setProperty(key, value.substr(0, importantIndex), 'important');
+            }
+            else {
+                rule.style.setProperty(key, value);
+            }
         }
-        return newProps;
     }
 
     function toCamelCase(str) {
@@ -163,13 +166,12 @@ var jss = (function(undefined) {
             if (!this.defaultSheet) {
                 this.defaultSheet = this._createSheet();
             }
-            properties = sanitiseProperties(properties);
             var rules = getRules(this.defaultSheet, selector);
             if (!rules.length) {
                 rules = [addRule(this.defaultSheet, selector)];
             }
             for (var i = 0; i < rules.length; i++) {
-                extend(rules[i].style, properties);
+                setStyleProperties(rules[i], properties);
             }
         },
         // Removes JSS rules (selector is optional)
