@@ -128,11 +128,19 @@ var jss = (function(undefined) {
         remove: function(selector) {
             if (!this.defaultSheet)
                 return;
-            var rules = getRules(this.defaultSheet, selector);
-            for (var i = 0; i < rules.length; i++) {
-                removeRule(rules[i]);
+            if (selector) {
+                // Removes all rules for the selector added via JSS
+                var rules = getRules(this.defaultSheet, selector);
+                for (var i = 0; i < rules.length; i++) {
+                    removeRule(rules[i]);
+                }
+                return rules.length;
             }
-            return rules.length;
+            else {
+                // Remove all JSS rules by removing the default sheet
+                this._removeSheet(this.defaultSheet);
+                delete this.defaultSheet;
+            }
         },
         _createSheet: function() {
             var styleNode = this.doc.createElement('style');
@@ -151,6 +159,10 @@ var jss = (function(undefined) {
         },
         _getNodeForSheet: function(sheet) {
             return sheet.ownerNode || sheet.owningElement;
+        },
+        _removeSheet: function(sheet) {
+            var node = this._getNodeForSheet(sheet);
+            node.parentNode.removeChild(node);
         }
     };
 

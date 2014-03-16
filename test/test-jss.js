@@ -1,40 +1,62 @@
-module('jss');
-
-test('Adding and removing sheets', function () {
-    var nSheets = jss._getSheets().length;
-
-    // Add new sheet
-    var newSheet = jss._addSheet();
-    equal(jss._getSheets().length, nSheets + 1, 'New sheet added');
-
-    // Remove new sheet
-    jss._removeSheet(newSheet);
-    equal(jss._getSheets().length, nSheets, 'New sheet removed');
+module('jss', {
+    teardown: function() {
+        jss.remove();
+    }
 });
 
-test('Adding and removing rules', function () {
-    // Setup
-    var sheet = jss._addSheet();
-    var i;
+test('get retrieves styles from the JSS stylesheet', function() {
+    var result = jss.get('#qunit-fixture');
+    equal(Object.keys(result).length, 0);
 
-    equal(jss._getRules(sheet).length, 0, 'New sheet has no rules');
+    jss.set('#qunit-fixture', { 'color': 'red', 'font-size': '20px' });
+    result = jss.get('#qunit-fixture');
+    equal(Object.keys(result).length, 2);
+    equal(result['color'], 'red');
+    equal(result['font-size'], '20px');
+});
 
-    // Add a rule
-    var rule = jss._addRule(sheet, '.someRule');
-    ok(!!rule.style, 'Rule has a style property');
-    equal(jss._getRules(sheet).length, 1, 'New rule added');
-    equal(jss._getRules(sheet, '.someRule').length, 1, 'Retrieve new rule with selector');
-    equal(jss._getRules(sheet, '.someOtherRule').length, 0, 'Retrieve non-existent rule');
+test('getAll also retrieves styles not part of the JSS stylesheet', function() {
+    var result = jss.getAll('#qunit-fixture');
+    equal(Object.keys(result).length, 1);
+    equal(result['display'], 'none');
 
-    // Add another rule
-    var rule2 = jss._addRule(sheet, '.someOtherRule');
-    equal(jss._getRules(sheet).length, 2, 'Sheet has two rules');
-    equal(jss._getRules(sheet, '.someOtherRule').length, 1, 'Retrieve second rule with selector');
+    jss.set('#qunit-fixture', { 'color': 'red', 'font-size': '20px' });
+    result = jss.getAll('#qunit-fixture');
+    equal(Object.keys(result).length, 3);
+    equal(result['color'], 'red');
+    equal(result['font-size'], '20px');
+    equal(result['display'], 'none');
+});
 
-    // Remove rules
-    var rules = jss._getRules(sheet);
-    jss._removeRule(rules[0]); // Shifting reference
-    equal(jss._getRules(sheet).length, 1, 'First rule removed');
-    jss._removeRule(rules[0]); // Shifting reference
-    equal(jss._getRules(sheet).length, 0, 'Second rule removed');
+test('remove only removes styles added to the JSS stylesheet', function() {
+    jss.set('#qunit-fixture', { 'color': 'red', 'font-size': '20px' });
+    var result = jss.getAll('#qunit-fixture');
+    equal(Object.keys(result).length, 3);
+
+    jss.remove();
+    result = jss.getAll('#qunit-fixture');
+    equal(Object.keys(result).length, 1);
+    equal(result['display'], 'none');
+});
+
+test('calling remove with a selector only removes styles added to the JSS stylesheet', function() {
+    jss.set('#qunit-fixture', { 'color': 'red', 'font-size': '20px' });
+    var result = jss.getAll('#qunit-fixture');
+    equal(Object.keys(result).length, 3);
+
+    jss.remove('#qunit-fixture');
+    result = jss.getAll('#qunit-fixture');
+    equal(Object.keys(result).length, 1);
+    equal(result['display'], 'none');
+});
+
+test('calling remove with a selector only removes styles for that selector', function() {
+    jss.set('#qunit-fixture', { 'color': 'red' });
+    jss.set('#alternative-element', { 'color': 'blue' });
+    equal(jss.get('#qunit-fixture')['color'], 'red');
+    equal(jss.get('#alternative-element')['color'], 'blue');
+
+    jss.remove('#qunit-fixture');
+    equal(Object.keys(jss.get('#qunit-fixture')).length, 0);
+    equal(jss.get('#alternative-element')['color'], 'blue');
 });
