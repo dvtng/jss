@@ -118,21 +118,11 @@ var jss = (function(undefined) {
             var value = properties[key];
             var importantIndex = value.indexOf(' !important');
             if (importantIndex > 0) {
-                setStyleProperty(rule.style, key, value.substr(0, importantIndex), 'important');
+                rule.style.setProperty(key, value.substr(0, importantIndex), 'important');
             }
             else {
-                setStyleProperty(rule.style, key, value);
+                rule.style.setProperty(key, value);
             }
-        }
-    }
-
-    function setStyleProperty(style, key, value, priority) {
-        if (style.setProperty) {
-            priority ? style.setProperty(key, value, priority) : style.setProperty(key, value);
-        }
-        // IE8 supports setAttribute instead
-        else if (style.setAttribute) {
-            priority ? style.setAttribute(key, value, priority) : style.setAttribute(key, value);
         }
     }
 
