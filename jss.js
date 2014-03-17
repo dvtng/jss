@@ -118,11 +118,21 @@ var jss = (function(undefined) {
             var value = properties[key];
             var importantIndex = value.indexOf(' !important');
             if (importantIndex > 0) {
-                rule.style.setProperty(key, value.substr(0, importantIndex), 'important');
+                setStyleProperty(rule.style, key, value.substr(0, importantIndex), 'important');
             }
             else {
-                rule.style.setProperty(key, value);
+                setStyleProperty(rule.style, key, value);
             }
+        }
+    }
+
+    function setStyleProperty(style, key, value, priority) {
+        if (style.setProperty) {
+            priority ? style.setProperty(key, value, priority) : style.setProperty(key, value);
+        }
+        // IE8 supports setAttribute instead
+        else if (style.setAttribute) {
+            priority ? style.setAttribute(key, value, priority) : style.setAttribute(key, value);
         }
     }
 
