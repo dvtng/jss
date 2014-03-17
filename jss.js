@@ -31,7 +31,6 @@ var jss = (function(undefined) {
         // Browsers report selectors in lowercase
         selector = selector.toLowerCase();
         for (var i = 0; i < rules.length; i++) {
-            // IE8 will split comma-delimited selectors into multiple rules, breaking our matching
             var selectorText = rules[i].selectorText;
             // Note - certain rules (e.g. @rules) don't have selectorText
             if (selectorText && (selectorText == selector || selectorText == swapAdjSelAttr(selector))) {
@@ -114,13 +113,15 @@ var jss = (function(undefined) {
     };
 
     function setStyleProperties(rule, properties) {
-        for (key in properties) {
+        for (var key in properties) {
             var value = properties[key];
             var importantIndex = value.indexOf(' !important');
+
+            // Modern browsers seem to handle overrides fine, but IE9 doesn't
+            rule.style.removeProperty(key); 
             if (importantIndex > 0) {
                 rule.style.setProperty(key, value.substr(0, importantIndex), 'important');
-            }
-            else {
+            } else {
                 rule.style.setProperty(key, value);
             }
         }

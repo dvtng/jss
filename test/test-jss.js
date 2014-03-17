@@ -94,3 +94,20 @@ test('set style with !important modifier', function() {
     jss.set('#jss-test', { 'background-color': 'blue !important' });
     equal(getComputedStyle(document.getElementById('jss-test'))['backgroundColor'], 'rgb(0, 0, 255)');
 });
+
+test('set a different style with !important modifier', function() {
+    jss.set('#jss-test', { 'color': 'blue' });
+    jss.set('div', { 'color': 'red !important' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['color'], 'rgb(255, 0, 0)');
+
+    jss.set('#jss-test', { 'color': 'blue !important' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['color'], 'rgb(0, 0, 255)');
+});
+
+test('subsequent calls to set that modify the same property will override previous call', function() {
+    jss.set('#jss-test', { 'background-color': 'red' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['backgroundColor'], 'rgb(255, 0, 0)');
+
+    jss.set('#jss-test', { 'background-color': 'blue' });
+    equal(getComputedStyle(document.getElementById('jss-test'))['backgroundColor'], 'rgb(0, 0, 255)');
+});
