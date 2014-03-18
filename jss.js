@@ -1,5 +1,5 @@
 /*
- * JSS v0.4 - JavaScript Stylesheets
+ * JSS v0.5 - JavaScript Stylesheets
  * https://github.com/Box9/jss
  *
  * Copyright (c) 2011, David Tang

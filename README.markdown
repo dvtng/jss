@@ -2,7 +2,7 @@
 
 A simple JavaScript library for retrieving and setting CSS stylesheet rules.
 
-* Tiny - ~200 lines of code
+* Tiny - ~250 lines of code
 * No dependencies
 * MIT Licensed
 * Supports FF, Chrome, Safari, Opera, and IE9+
