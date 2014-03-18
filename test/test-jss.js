@@ -111,3 +111,8 @@ test('subsequent calls to set that modify the same property will override previo
     jss.set('#jss-test', { 'background-color': 'blue' });
     equal(getComputedStyle(document.getElementById('jss-test'))['backgroundColor'], 'rgb(0, 0, 255)');
 });
+
+test('set accepts properties in camel-case', function() {
+    jss.set('#jss-test', { 'backgroundColor': 'red' });
+    equal(jss.get('#jss-test')['background-color'], 'red');
+});

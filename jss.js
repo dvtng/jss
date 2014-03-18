@@ -133,6 +133,20 @@ var jss = (function(undefined) {
         });
     }
 
+    function transformCamelCasedPropertyNames(oldProps) {
+        var newProps = {};
+        for (var key in oldProps) {
+            newProps[unCamelCase(key)] = oldProps[key];
+        }
+        return newProps;
+    }
+
+    function unCamelCase(str) {
+        return str.replace(/([A-Z])/g, function(match, submatch) {
+            return '-' + submatch.toLowerCase();
+        });
+    }
+
     var Jss = function(doc) {
         this.doc = doc;
         this.head = this.doc.head || this.doc.getElementsByTagName('head')[0];
@@ -167,6 +181,7 @@ var jss = (function(undefined) {
             if (!this.defaultSheet) {
                 this.defaultSheet = this._createSheet();
             }
+            properties = transformCamelCasedPropertyNames(properties);
             var rules = getRules(this.defaultSheet, selector);
             if (!rules.length) {
                 rules = [addRule(this.defaultSheet, selector)];
