@@ -5,7 +5,7 @@
  * Copyright (c) 2011, David Tang
  * MIT Licensed (http://www.opensource.org/licenses/mit-license.php)
  */
-var jss = (function(undefined) {
+var jss = (function() {
     var adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
 
     function getSelectorsAndRules(sheet) {
@@ -235,3 +235,5 @@ var jss = (function(undefined) {
     };
     return exports;
 })();
+
+typeof module !== 'undefined' && module.exports && (module.exports = jss); // CommonJS support
