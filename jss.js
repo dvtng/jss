@@ -272,21 +272,10 @@ var jss = (function() {
             styleNode.type = 'text/css';
             styleNode.rel = 'stylesheet';
             this.head.appendChild(styleNode);
-            return this._getSheetForNode(styleNode);
-        },
-        _getSheetForNode: function(node) {
-            for (var i = 0; i < this.sheets.length; i++) {
-                if (node === this._getNodeForSheet(this.sheets[i])) {
-                    return this.sheets[i];
-                }
-            }
-            return null;
-        },
-        _getNodeForSheet: function(sheet) {
-            return sheet.ownerNode || sheet.owningElement;
+            return styleNode.sheet;
         },
         _removeSheet: function(sheet) {
-            var node = this._getNodeForSheet(sheet);
+            var node = sheet.ownerNode;
             node.parentNode.removeChild(node);
         }
     };
