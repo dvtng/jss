@@ -6,13 +6,17 @@
  * MIT Licensed (http://www.opensource.org/licenses/mit-license.php)
  */
 var jss = (function() {
-    var adjSelAttrRgx = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
+    var adjSelAttrRegex = /((?:\.|#)[^\.\s#]+)((?:\.|#)[^\.\s#]+)/g;
+    var doubleColonPseudoElRegex = /(::)(before|after|first-line|first-letter|selection)/;
+    var singleColonPseudoElRegex = /([^:])(:)(before|after|first-line|first-letter|selection)/;
+    var singleColonForPseudoElements; // flag for older browsers
 
     function getSelectorsAndRules(sheet) {
         var rules = sheet.cssRules || sheet.rules || [];
         var results = {};
         for (var i = 0; i < rules.length; i++) {
-            var selectorText = rules[i].selectorText;
+            // Older browsers and FF report pseudo element selectors in an outdated format
+            var selectorText = toDoubleColonPseudoElements(rules[i].selectorText);
             if (!results[selectorText]) {
                 results[selectorText] = [];
             }
@@ -33,7 +37,7 @@ var jss = (function() {
         for (var i = 0; i < rules.length; i++) {
             var selectorText = rules[i].selectorText;
             // Note - certain rules (e.g. @rules) don't have selectorText
-            if (selectorText && (selectorText == selector || selectorText == swapAdjSelAttr(selector))) {
+            if (selectorText && (selectorText == selector || selectorText == swapAdjSelAttr(selector) || selectorText == swapPseudoElSyntax(selector))) {
                 results.push({
                     sheet: sheet,
                     index: i,
@@ -47,17 +51,67 @@ var jss = (function() {
     function addRule(sheet, selector) {
         var rules = sheet.cssRules || sheet.rules || [];
         var index = rules.length;
-        if (sheet.insertRule) {
-            sheet.insertRule(selector + ' { }', index);
-        } else if (sheet.addRule) {
-            sheet.addRule(selector, null, index);
+        var pseudoElementRule = addPseudoElementRule(sheet, selector, rules, index);
+
+        if (!pseudoElementRule) {
+            addRuleToSheet(sheet, selector, index);
         }
+        
         return {
             sheet: sheet,
             index: index,
             style: rules[index].style
         };
     };
+
+    function addRuleToSheet(sheet, selector, index) {
+        if (sheet.insertRule) {
+            sheet.insertRule(selector + ' { }', index);
+        } else {
+            sheet.addRule(selector, null, index);
+        }
+    }
+
+    // Handles single colon syntax for older browsers and bugzilla.mozilla.org/show_bug.cgi?id=949651
+    function addPseudoElementRule(sheet, selector, rules, index) {
+        var doubleColonSelector;
+        var singleColonSelector;
+
+        if (doubleColonPseudoElRegex.exec(selector)) {
+            doubleColonSelector = selector;
+            singleColonSelector = toSingleColonPseudoElements(selector);
+        } else if (singleColonPseudoElRegex.exec(selector)) {
+            doubleColonSelector = toDoubleColonPseudoElements(selector);
+            singleColonSelector = selector;
+        } else {
+            return false; // Not dealing with a pseudo element
+        }
+
+        if (!singleColonForPseudoElements) {
+            // Assume modern browser and then check if successful
+            addRuleToSheet(sheet, doubleColonSelector, index);
+            if (rules.length <= index) {
+                singleColonForPseudoElements = true;
+            }
+        }
+        if (singleColonForPseudoElements) {
+            addRuleToSheet(sheet, singleColonSelector, index);
+        }
+
+        return true;
+    }
+
+    function toDoubleColonPseudoElements(selector) {
+        return selector.replace(singleColonPseudoElRegex, function (match, submatch1, submatch2, submatch3) {
+            return submatch1 + '::' + submatch3;
+        });
+    }
+
+    function toSingleColonPseudoElements(selector) {
+        return selector.replace(doubleColonPseudoElRegex, function(match, submatch1, submatch2) {
+            return ':' + submatch2;
+        })
+    }
 
     function removeRule(rule) {
         var sheet = rule.sheet;
@@ -99,7 +153,7 @@ var jss = (function() {
         var swap = '';
         var lastIndex = 0;
             
-        while ((match = adjSelAttrRgx.exec(selector)) != null) {
+        while ((match = adjSelAttrRegex.exec(selector)) != null) {
             if (match[0] === '')
                 break;
             swap += selector.substring(lastIndex, match.index);
@@ -111,6 +165,14 @@ var jss = (function() {
         
         return swap;
     };
+
+    // FF and older browsers store rules with pseudo elements using single-colon syntax
+    function swapPseudoElSyntax(selector) {
+        if (doubleColonPseudoElRegex.exec(selector)) {
+            return toSingleColonPseudoElements(selector);
+        }
+        return selector;
+    }
 
     function setStyleProperties(rule, properties) {
         for (var key in properties) {
