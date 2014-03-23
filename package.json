@@ -1,0 +1,9 @@
+{
+  "name": "jss",
+  "version": "0.6.0",
+  "devDependencies": {
+    "gulp": "~3.5.6",
+    "gulp-uglify": "~0.2.1",
+    "gulp-rename": "~1.2.0"
+  }
+}
