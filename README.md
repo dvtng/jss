@@ -20,9 +20,13 @@ Download and include `jss.js` (or the minified file) in your HTML:
 
     <script type="text/javascript" src="jss.js"></script>
 
-If your project uses Bower for package management you can run the following command instead:
+If your project uses Bower for package management you can run the following command:
 
     bower install jss
+    
+If your project uses Browserify for package management you can run the following command:
+
+    npm install jss-browserify
 
 **jss.set(selector, properties)** to add a new rule or extend an existing rule:
 

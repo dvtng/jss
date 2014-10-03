@@ -1,6 +1,27 @@
 {
   "name": "jss",
   "version": "0.6.0",
+  "description": "A simple JavaScript library for retrieving and setting CSS stylesheet rules.",
+  "main": "jss.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Box9/jss"
+  },
+  "keywords": [
+    "css",
+    "jss",
+    "style",
+    "sheet",
+    "stylesheet",
+    "rules"
+  ],
+  "author": {
+    "name": "David Tang",
+    "web": "https://github.com/Box9"
+  },
+  "bugs": {
+    "url": "https://github.com/Box9/jss/issues"  
+  },
   "devDependencies": {
     "gulp": "~3.5.6",
     "gulp-uglify": "~0.2.1",
