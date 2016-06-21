@@ -1,6 +1,6 @@
 {
     "name": "jss",
-    "version": "0.7",
+    "version": "0.7.1",
     "main": "jss.js",
     "ignore": [ "test", "test/*" ]
 }
