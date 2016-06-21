@@ -231,10 +231,20 @@ var jss = (function() {
             return rules;
         },
         // Returns all rules (selector is required)
-        getAll: function(selector) {
+        getAll: function(selector,sheet_name) {
             var properties = {};
+			var regex_search;
+			if ( ( typeof sheet_name !== "undefined" ) && ( sheet_name != null ) ) {
+				regex_search = new RegExp( sheet_name, "g" );
+			}
             for (var i = 0; i < this.sheets.length; i++) {
-                extend(properties, aggregateStyles(getRules(this.sheets[i], selector)));
+                if ( regex_search ) {
+                    if ( regex_search.test( this.sheets[i].href ) ) {
+                        extend(properties, aggregateStyles(getRules(this.sheets[i], selector)));
+                    }
+                } else {
+                    extend(properties, aggregateStyles(getRules(this.sheets[i], selector)));
+                }
             }
             return properties;
         },
