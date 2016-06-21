@@ -1,5 +1,5 @@
 /*
- * JSS v0.6 - JavaScript Stylesheets
+ * JSS v0.7.1 - JavaScript Stylesheets
  * https://github.com/Box9/jss
  *
  * Copyright (c) 2011, David Tang
@@ -177,14 +177,16 @@ var jss = (function() {
     function setStyleProperties(rule, properties) {
         for (var key in properties) {
             var value = properties[key];
-            var importantIndex = value.indexOf(' !important');
-
-            // Modern browsers seem to handle overrides fine, but IE9 doesn't
-            rule.style.removeProperty(key); 
-            if (importantIndex > 0) {
-                rule.style.setProperty(key, value.substr(0, importantIndex), 'important');
-            } else {
-                rule.style.setProperty(key, value);
+            if ( typeof value !== "undefined" ) {
+                var importantIndex = value.indexOf(' !important');
+                
+                // Modern browsers seem to handle overrides fine, but IE9 doesn't
+                rule.style.removeProperty(key); 
+                if (importantIndex > 0) {
+                    rule.style.setProperty(key, value.substr(0, importantIndex), 'important');
+                } else {
+                    rule.style.setProperty(key, value);
+                }
             }
         }
     }
@@ -231,10 +233,20 @@ var jss = (function() {
             return rules;
         },
         // Returns all rules (selector is required)
-        getAll: function(selector) {
+        getAll: function(selector,sheet_name) {
             var properties = {};
+            var regex_search;
+            if ( ( typeof sheet_name !== "undefined" ) && ( sheet_name != null ) ) {
+              regex_search = new RegExp( sheet_name, "g" );
+            }
             for (var i = 0; i < this.sheets.length; i++) {
+              if ( regex_search ) {
+                if ( regex_search.test( this.sheets[i].href ) ) {
+                  extend(properties, aggregateStyles(getRules(this.sheets[i], selector)));
+                }
+              } else {
                 extend(properties, aggregateStyles(getRules(this.sheets[i], selector)));
+              }
             }
             return properties;
         },

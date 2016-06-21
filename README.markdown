@@ -1,4 +1,5 @@
 # JSS
+v0.7.1
 
 A simple JavaScript library for retrieving and setting CSS stylesheet rules.
 
@@ -50,15 +51,17 @@ If your project uses Bower for package management you can run the following comm
     }
     
 
-**jss.getAll(selector)** to retrieve all rules that are specified using the selector (not necessarily added via JSS):
+**jss.getAll(selector[,sheetname])** to retrieve all rules that are specified using the selector (not necessarily added via JSS):
 
-    jss.getAll('.demo');
+    jss.getAll('.demo'); // search through whole CSS stack
     // returns the following:
     {
         'font-size': '15px',
         'color': 'red',
         'font-weight': 'bold'
     }
+    
+    jss.getAll('.demo','this_file_only.css'); // search only the given CSS file (which must be included in the page)
 
 **jss.remove([selector])** to remove rules added via JSS:
 
