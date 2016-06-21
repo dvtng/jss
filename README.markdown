@@ -1,5 +1,5 @@
 # JSS
-v0.7
+v0.7.1
 
 A simple JavaScript library for retrieving and setting CSS stylesheet rules.
 
