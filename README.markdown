@@ -18,7 +18,9 @@ Why generate CSS with JavaScript?
 
 Download and include `jss.js` (or the minified file) in your HTML:
 
-    <script type="text/javascript" src="jss.js"></script>
+```html
+<script type="text/javascript" src="jss.js"></script>
+```
 
 If your project uses Bower for package management you can run the following command instead:
 
@@ -26,41 +28,48 @@ If your project uses Bower for package management you can run the following comm
 
 **jss.set(selector, properties)** to add a new rule or extend an existing rule:
 
-    jss.set('.demo', {
-        'font-size': '15px',
-        'color': 'red'
-    });
+```js
+jss.set('.demo', {
+    'font-size': '15px',
+    'color': 'red'
+});
+```
 
 **jss.get([selector])** to retrieve rules added via JSS:
 
-    jss.get('.demo');
-    // returns the following:
-    {
+```js
+jss.get('.demo');
+// returns the following:
+{
+    'font-size': '15px',
+    'color': 'red'
+}
+    
+jss.get();
+// returns the following:
+{
+    '.demo': {
         'font-size': '15px',
         'color': 'red'
     }
-    
-    jss.get();
-    // returns the following:
-    {
-        '.demo': {
-            'font-size': '15px',
-            'color': 'red'
-        }
-    }
-    
+}
+```    
 
 **jss.getAll(selector)** to retrieve all rules that are specified using the selector (not necessarily added via JSS):
 
-    jss.getAll('.demo');
-    // returns the following:
-    {
-        'font-size': '15px',
-        'color': 'red',
-        'font-weight': 'bold'
-    }
+```js
+jss.getAll('.demo');
+// returns the following:
+{
+    'font-size': '15px',
+    'color': 'red',
+    'font-weight': 'bold'
+}
+```
 
 **jss.remove([selector])** to remove rules added via JSS:
 
-    jss.remove('.demo'); // removes all JSS styles matching the selector
-    jss.remove();        // removes all JSS styles
+```js
+jss.remove('.demo'); // removes all JSS styles matching the selector
+jss.remove();        // removes all JSS styles
+```
