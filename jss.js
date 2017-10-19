@@ -212,7 +212,7 @@ var jss = (function() {
 
     var Jss = function(doc) {
         this.doc = doc;
-        this.head = this.doc.head || this.doc.getElementsByTagName('head')[0];
+        this.body = this.doc.body || this.doc.getElementsByTagName('body')[0];
         this.sheets = this.doc.styleSheets || [];
     };
 
@@ -272,7 +272,7 @@ var jss = (function() {
             var styleNode = this.doc.createElement('style');
             styleNode.type = 'text/css';
             styleNode.rel = 'stylesheet';
-            this.head.appendChild(styleNode);
+            this.body.appendChild(styleNode);
             return styleNode.sheet;
         },
         _removeSheet: function(sheet) {
