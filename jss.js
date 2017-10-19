@@ -176,7 +176,8 @@ var jss = (function() {
 
     function setStyleProperties(rule, properties) {
         for (var key in properties) {
-            var value = properties[key];
+            var value = properties[key] || '';
+            value = value.toString();
             var importantIndex = value.indexOf(' !important');
 
             // Modern browsers seem to handle overrides fine, but IE9 doesn't
