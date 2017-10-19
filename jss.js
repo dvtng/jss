@@ -176,7 +176,8 @@ var jss = (function() {
 
     function setStyleProperties(rule, properties) {
         for (var key in properties) {
-            var value = properties[key];
+            var value = properties[key] || '';
+            value = value.toString();
             var importantIndex = value.indexOf(' !important');
 
             // Modern browsers seem to handle overrides fine, but IE9 doesn't
@@ -211,7 +212,7 @@ var jss = (function() {
 
     var Jss = function(doc) {
         this.doc = doc;
-        this.head = this.doc.head || this.doc.getElementsByTagName('head')[0];
+        this.body = this.doc.body || this.doc.getElementsByTagName('body')[0];
         this.sheets = this.doc.styleSheets || [];
     };
 
@@ -271,7 +272,7 @@ var jss = (function() {
             var styleNode = this.doc.createElement('style');
             styleNode.type = 'text/css';
             styleNode.rel = 'stylesheet';
-            this.head.appendChild(styleNode);
+            this.body.appendChild(styleNode);
             return styleNode.sheet;
         },
         _removeSheet: function(sheet) {
